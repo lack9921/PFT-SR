@@ -1,0 +1,24 @@
+{
+    "name": "PFT-SR (CVPR 2025)",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "runArgs": [
+        "--gpus", "all",
+        "--shm-size", "8gb"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter"
+            ]
+        }
+    },
+    "workspaceFolder": "/workspace",
+    "mounts": [
+        "source=${env:USERPROFILE}\\..\\Lovif\\LoViF 2026,target=/datasets/LoViF_2026,type=bind",
+        "source=${env:USERPROFILE}\\..\\Lovif\\LoViF_val,target=/datasets/LoViF_val,type=bind"
+    ]
+}
