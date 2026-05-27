@@ -9,8 +9,7 @@
         "--shm-size", "8gb"
     ],
     "mounts": [
-        "source=F:\\Lovif\\LoViF 2026,target=/datasets/LoViF_2026,type=bind",
-        "source=F:\\Lovif\\LoViF_val,target=/datasets/LoViF_val,type=bind"
+        "source=D:\\dataset,target=/datasets_host,type=bind"
     ],
     "customizations": {
         "vscode": {
