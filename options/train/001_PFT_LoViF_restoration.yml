@@ -1,7 +1,7 @@
 ﻿# =============================================================
-# PFT-SR LoViF 2026 鎭㈠璁粌閰嶇疆 (Restoration / upscale=1)
+# PFT-SR LoViF 2026 Restoration Training (upscale=1)
 # CVPR 2025 - Progressive Focused Transformer
-# 鍙傝€? AdaIR LoViF baseline
+# Reference: AdaIR LoViF baseline
 # =============================================================
 name: PFT_LoViF_AllTracks
 model_type: PFTModel
@@ -9,7 +9,7 @@ num_gpu: 1
 manual_seed: 42
 
 # -----------------------------------------------------------
-# 缃戠粶缁撴瀯 - 浣跨敤 upsampler='' 杩涘叆 restoration 妯″紡 (鏃犺秴鍒?
+# Network - upsampler='' for restoration mode (no SR)
 # -----------------------------------------------------------
 network_g:
   type: PFT
@@ -19,7 +19,7 @@ network_g:
   embed_dim: 90
   depths: [6, 6, 6, 6, 6, 6]
   num_heads: 6
-  # PFI 娓愯繘鑱氱劍: 瓒婃繁灞?top-k 瓒婂皬 (24灞? 瀵瑰簲6涓猻tage鍚?灞?
+  # PFI: deeper layers have smaller top-k (24 layers, 6 stages x 4)
   num_topk: [1024, 1024, 1024, 1024, 1024, 1024,
              256, 256, 256, 256, 256, 256,
              128, 128, 128, 128, 128, 128,
@@ -35,7 +35,7 @@ network_g:
   use_checkpoint: true
 
 # -----------------------------------------------------------
-# 鏁版嵁闆?- 5 涓?track 鍚堝苟璁粌, 5 涓?track 鍚屾椂楠岃瘉
+# Dataset - 5 tracks merged for training, 5 tracks for val
 # -----------------------------------------------------------
 datasets:
   train:
@@ -95,7 +95,7 @@ datasets:
     scale: 1
 
 # -----------------------------------------------------------
-# 璺緞
+# Paths
 # -----------------------------------------------------------
 path:
   pretrain_network_g: ~
@@ -103,7 +103,7 @@ path:
   resume_state: ~
 
 # -----------------------------------------------------------
-# 璁粌鍙傛暟 (8GB VRAM 鍙嬪ソ)
+# Training (8GB VRAM friendly)
 # -----------------------------------------------------------
 train:
   ema_decay: 0.999
@@ -122,14 +122,13 @@ train:
   gradient_accumulation_steps: 4
   mix_precision: true
 
-  # 鎹熷け鍑芥暟
   pixel_opt:
     type: L1Loss
     loss_weight: 1.0
     reduction: mean
 
 # -----------------------------------------------------------
-# 楠岃瘉璁剧疆 - 姣?4000 iter 楠岃瘉鍏ㄩ儴 5 涓?track
+# Validation every 4000 iters on all 5 tracks
 # -----------------------------------------------------------
 val:
   val_freq: !!float 4000
@@ -145,7 +144,7 @@ val:
       test_y_channel: false
 
 # -----------------------------------------------------------
-# 鏃ュ織
+# Logging
 # -----------------------------------------------------------
 logger:
   print_freq: 100
