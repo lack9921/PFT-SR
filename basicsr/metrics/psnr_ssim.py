@@ -229,3 +229,35 @@ def _ssim_pth(img, img2):
     cs_map = (2 * sigma12 + c2) / (sigma1_sq + sigma2_sq + c2)
     ssim_map = ((2 * mu1_mu2 + c1) / (mu1_sq + mu2_sq + c1)) * cs_map
     return ssim_map.mean([1, 2, 3])
+
+
+@METRIC_REGISTRY.register()
+def calculate_lpips(img, img2, crop_border=0, test_y_channel=False, better='lower', **kwargs):
+    import lpips
+    import torch
+    import torch.nn.functional as F
+
+    assert img.shape == img2.shape, (f'Image shapes are different: {img.shape}, {img2.shape}.')
+
+    if crop_border != 0:
+        img = img[:, :, crop_border:-crop_border, crop_border:-crop_border]
+        img2 = img2[:, :, crop_border:-crop_border, crop_border:-crop_border]
+
+    # Ensure 3-channel input for LPIPS
+    if img.shape[1] == 1:
+        img = img.repeat(1, 3, 1, 1)
+        img2 = img2.repeat(1, 3, 1, 1)
+
+    # Normalize to [-1, 1] as expected by LPIPS
+    img_norm = img * 2.0 - 1.0
+    img2_norm = img2 * 2.0 - 1.0
+
+    # Resize to 224x224 for LPIPS if needed
+    if img.shape[-1] != 224 or img.shape[-2] != 224:
+        img_norm = F.interpolate(img_norm, size=(224, 224), mode='bilinear', align_corners=False)
+        img2_norm = F.interpolate(img2_norm, size=(224, 224), mode='bilinear', align_corners=False)
+
+    loss_fn = lpips.LPIPS(net='alex', verbose=False).to(img.device)
+    lpips_val = loss_fn(img_norm, img2_norm)
+    lpips_val = lpips_val.mean().item()
+    return lpips_val
