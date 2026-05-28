@@ -36,34 +36,6 @@ RUN pip install --no-cache-dir \
         pyyaml requests scikit-image scipy tqdm yapf \
         tensorboard matplotlib einops timm yacs
 
-# Patch script for SMM kernel (runs at runtime to fix CUDA arch detection)
-RUN cat > /usr/local/bin/compile_smm.sh << 'SCRIPT'
-#!/bin/bash
-set -e
-cd /workspace/ops_smm
-
-# Patch setup.py to use TORCH_CUDA_ARCH_LIST instead of GPU detection
-python3 << 'PYEOF'
-import os
-f = open('setup.py')
-c = f.read()
-f.close()
-old = "cuda_archs = cuda.get_gencode_flags().replace('compute=', 'arch=').split()"
-new = "arch_env = os.environ.get('TORCH_CUDA_ARCH_LIST')\nif arch_env:\n    cuda_archs = []\n    for a in arch_env.split(';'):\n        cuda_archs.append('-gencode')\n        cuda_archs.append(f'arch=compute_{a},code=sm_{a}')\nelse:\n    cuda_archs = cuda.get_gencode_flags().replace('compute=', 'arch=').split()"
-assert old in c, f'Could not find target string in setup.py'
-c = c.replace(old, new)
-f = open('setup.py', 'w')
-f.write(c)
-f.close()
-print('setup.py patched for TORCH_CUDA_ARCH_LIST')
-PYEOF
-
-TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0;12.0" python3 setup.py build_ext --inplace
-cd /workspace && python3 setup.py develop
-echo 'PFT-SR Environment Ready!'
-SCRIPT
-RUN chmod +x /usr/local/bin/compile_smm.sh
-
 WORKDIR /workspace
 CMD ["bash"]
 

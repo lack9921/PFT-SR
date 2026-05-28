@@ -28,6 +28,6 @@
     "workspaceFolder": "/workspace",
     "remoteUser": "root",
     "shutdownAction": "none",
-    "postCreateCommand": "echo 'Compiling SMM CUDA kernel...' && /usr/local/bin/compile_smm.sh"
+    "postCreateCommand": "cd /workspace/ops_smm && TORCH_CUDA_ARCH_LIST='8.0;8.6;8.9;9.0;12.0' python3 setup.py build_ext --inplace && echo 'SMM CUDA kernel compiled OK'"
 }
 

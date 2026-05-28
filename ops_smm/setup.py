@@ -28,7 +28,14 @@ def get_extensions():
 
         # Auto-detect CUDA architectures
         # Get all architectures supported by current CUDA environment
-        cuda_archs = cuda.get_gencode_flags().replace('compute=', 'arch=').split()
+        arch_env = __import__('os').environ.get('TORCH_CUDA_ARCH_LIST')
+if arch_env:
+    cuda_archs = []
+    for a in arch_env.split(';'):
+        cuda_archs.append('-gencode')
+        cuda_archs.append(f'arch=compute_{a},code=sm_{a}')
+else:
+    cuda_archs = cuda.get_gencode_flags().replace('compute=', 'arch=').split()
         if not cuda_archs:
             print(f"Warning: Failed to auto-detect CUDA architectures")
             # Fallback to common architectures if auto-detection fails
