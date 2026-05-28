@@ -8,7 +8,7 @@
     ],
     "mounts": [
         "source=E:\\Project\\PFT-SR,target=/workspace,type=bind,consistency=cached",
-        "source=D:\\02_Datasets,target=/datasets_host,type=bind,consistency=cached"
+        "source=D:\\dataset,target=/datasets_host,type=bind,consistency=cached"
     ],
     "customizations": {
         "vscode": {
