@@ -1,9 +1,6 @@
 ﻿{
     "name": "PFT-SR-Blackwell-Environment",
-    "build": {
-        "context": ".",
-        "dockerfile": "Dockerfile"
-    },
+    "image": "pft-test:latest",
     "runArgs": [
         "--gpus", "all",
         "--shm-size", "16gb",
