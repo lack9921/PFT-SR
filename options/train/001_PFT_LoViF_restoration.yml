@@ -52,7 +52,7 @@ datasets:
     use_rot: true
     scale: 1
     batch_size_per_gpu: 2
-    num_worker_per_gpu: 8
+    num_worker_per_gpu: 4
     io_backend: {type: disk}
     dataset_enlarge_ratio: 1
     pin_memory: True
@@ -120,6 +120,7 @@ train:
   total_iter: 153125
   warmup_iter: 500
   gradient_accumulation_steps: 8
+  gradient_checkpointing: true
   mix_precision: true
 
   pixel_opt:

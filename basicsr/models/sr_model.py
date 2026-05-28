@@ -40,6 +40,7 @@ class SRModel(BaseModel):
         train_opt = self.opt['train']
 
         self.ema_decay = train_opt.get('ema_decay', 0)
+        self.grad_accum_steps = train_opt.get('gradient_accumulation_steps', 1)
         if self.ema_decay > 0:
             logger = get_root_logger()
             logger.info(f'Use Exponential Moving Average with decay: {self.ema_decay}')
@@ -93,7 +94,10 @@ class SRModel(BaseModel):
             self.gt = data['gt'].to(self.device)
 
     def optimize_parameters(self, current_iter):
-        self.optimizer_g.zero_grad()
+        # gradient accumulation: only zero_grad on first sub-step
+        if current_iter % self.grad_accum_steps == 0:
+            self.optimizer_g.zero_grad()
+
         self.output = self.net_g(self.lq)
 
         l_total = 0
@@ -113,8 +117,13 @@ class SRModel(BaseModel):
                 l_total += l_style
                 loss_dict['l_style'] = l_style
 
+        # scale loss by grad_accum_steps to keep effective loss magnitude
+        l_total = l_total / self.grad_accum_steps
         l_total.backward()
-        self.optimizer_g.step()
+
+        # only step optimizer on the last sub-step of each accumulation cycle
+        if (current_iter + 1) % self.grad_accum_steps == 0:
+            self.optimizer_g.step()
 
         self.log_dict = self.reduce_loss_dict(loss_dict)
 
