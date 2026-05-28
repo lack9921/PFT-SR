@@ -1,15 +1,14 @@
 ﻿{
     "name": "PFT-SR-Blackwell-Environment",
     "build": {
-        // 保持在 .devcontainer 内部构建，避免插件生成临时文件时路径错乱
         "context": ".",
         "dockerfile": "Dockerfile"
     },
     "runArgs": [
         "--gpus", "all",
-        "--shm-size", "16gb"
+        "--shm-size", "16gb",
+        "--env", "PYTHONPATH=/workspace/ops_smm"
     ],
-    // 📂 挂载你的 D 盘冷数据（之前规划好的标准路径）
     "mounts": [
         "source=D:\\02_Datasets,target=/datasets_host,type=bind,consistency=cached"
     ],
@@ -20,19 +19,15 @@
                 "ms-python.vscode-pylance"
             ],
             "settings": {
-                // 给自定义算子做代码高亮和跳转补全提示
                 "python.analysis.extraPaths": [
                     "/workspace/ops_smm"
                 ]
             }
         }
     },
-    // 将整个宿主机打开的项目完美对应挂载到此处
     "workspaceFolder": "/workspace",
     "remoteUser": "root",
     "shutdownAction": "none",
-    
-    // 🚀 容器成功挂载并启动后，在内部自动全盘编译 PFT 的专属 CUDA 算子
-    // 此时代码已经挂载就位，可以极其稳健地直接就地编译，不再依赖任何构建期间的拷贝
-    "postCreateCommand": "echo 'Configuring PFT-SR Kernels...' && cd /workspace/ops_smm && python setup.py build_ext --inplace && cd /workspace && python setup.py develop && echo 'PFT-SR Environment Ready!'"
+    "postCreateCommand": "echo 'Compiling SMM CUDA kernel...' && /usr/local/bin/compile_smm.sh"
 }
+
