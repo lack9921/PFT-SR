@@ -1,0 +1,157 @@
+﻿# =============================================================
+# PFT-SR LoViF 2026 鎭㈠璁粌閰嶇疆 (Restoration / upscale=1)
+# CVPR 2025 - Progressive Focused Transformer
+# 鍙傝€? AdaIR LoViF baseline
+# =============================================================
+name: PFT_LoViF_AllTracks
+model_type: PFTModel
+num_gpu: 1
+manual_seed: 42
+
+# -----------------------------------------------------------
+# 缃戠粶缁撴瀯 - 浣跨敤 upsampler='' 杩涘叆 restoration 妯″紡 (鏃犺秴鍒?
+# -----------------------------------------------------------
+network_g:
+  type: PFT
+  upscale: 1
+  in_chans: 3
+  img_size: 64
+  embed_dim: 90
+  depths: [6, 6, 6, 6, 6, 6]
+  num_heads: 6
+  # PFI 娓愯繘鑱氱劍: 瓒婃繁灞?top-k 瓒婂皬 (24灞? 瀵瑰簲6涓猻tage鍚?灞?
+  num_topk: [1024, 1024, 1024, 1024, 1024, 1024,
+             256, 256, 256, 256, 256, 256,
+             128, 128, 128, 128, 128, 128,
+             64, 64, 64, 64, 64, 64,
+             32, 32, 32, 32, 32, 32,
+             16, 16, 16, 16, 16, 16]
+  window_size: 16
+  convffn_kernel_size: 5
+  img_range: 1.
+  mlp_ratio: 2.
+  upsampler: ''
+  resi_connection: '1conv'
+  use_checkpoint: true
+
+# -----------------------------------------------------------
+# 鏁版嵁闆?- 5 涓?track 鍚堝苟璁粌, 5 涓?track 鍚屾椂楠岃瘉
+# -----------------------------------------------------------
+datasets:
+  train:
+    name: LoViF_AllTracks
+    type: ConcatLoViFDataset
+    tracks:
+      Blur:    {gt: /datasets_host/LoViF 2026/Blur/GT, lq: /datasets_host/LoViF 2026/Blur/LQ}
+      Haze:    {gt: /datasets_host/LoViF 2026/Haze/GT, lq: /datasets_host/LoViF 2026/Haze/LQ}
+      Lowlight: {gt: /datasets_host/LoViF 2026/Lowlight/GT, lq: /datasets_host/LoViF 2026/Lowlight/LQ}
+      Rain:    {gt: /datasets_host/LoViF 2026/Rain/GT, lq: /datasets_host/LoViF 2026/Rain/LQ}
+      Snow:    {gt: /datasets_host/LoViF 2026/Snow/GT, lq: /datasets_host/LoViF 2026/Snow/LQ}
+    gt_size: 64
+    use_hflip: true
+    use_rot: true
+    scale: 1
+    batch_size_per_gpu: 2
+    num_worker_per_gpu: 4
+    io_backend: {type: disk}
+    dataset_enlarge_ratio: 1
+    pin_memory: True
+    persistent_workers: True
+
+  val_blur:
+    name: LoViF_Val_Blur
+    type: PairedImageDataset
+    dataroot_gt: /datasets_host/LoViF_val/Blur/GT
+    dataroot_lq: /datasets_host/LoViF_val/Blur/LQ
+    io_backend: {type: disk}
+    scale: 1
+  val_haze:
+    name: LoViF_Val_Haze
+    type: PairedImageDataset
+    dataroot_gt: /datasets_host/LoViF_val/Haze/GT
+    dataroot_lq: /datasets_host/LoViF_val/Haze/LQ
+    io_backend: {type: disk}
+    scale: 1
+  val_lowlight:
+    name: LoViF_Val_Lowlight
+    type: PairedImageDataset
+    dataroot_gt: /datasets_host/LoViF_val/Lowlight/GT
+    dataroot_lq: /datasets_host/LoViF_val/Lowlight/LQ
+    io_backend: {type: disk}
+    scale: 1
+  val_rain:
+    name: LoViF_Val_Rain
+    type: PairedImageDataset
+    dataroot_gt: /datasets_host/LoViF_val/Rain/GT
+    dataroot_lq: /datasets_host/LoViF_val/Rain/LQ
+    io_backend: {type: disk}
+    scale: 1
+  val_snow:
+    name: LoViF_Val_Snow
+    type: PairedImageDataset
+    dataroot_gt: /datasets_host/LoViF_val/Snow/GT
+    dataroot_lq: /datasets_host/LoViF_val/Snow/LQ
+    io_backend: {type: disk}
+    scale: 1
+
+# -----------------------------------------------------------
+# 璺緞
+# -----------------------------------------------------------
+path:
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+
+# -----------------------------------------------------------
+# 璁粌鍙傛暟 (8GB VRAM 鍙嬪ソ)
+# -----------------------------------------------------------
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: AdamW
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  scheduler:
+    type: CosineAnnealingRestartLR
+    periods: [51042, 102083]
+    restart_weights: [1, 1]
+    eta_min: !!float 1e-6
+  total_iter: 153125
+  warmup_iter: 500
+  gradient_accumulation_steps: 4
+  mix_precision: true
+
+  # 鎹熷け鍑芥暟
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+# -----------------------------------------------------------
+# 楠岃瘉璁剧疆 - 姣?4000 iter 楠岃瘉鍏ㄩ儴 5 涓?track
+# -----------------------------------------------------------
+val:
+  val_freq: !!float 4000
+  save_img: false
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# -----------------------------------------------------------
+# 鏃ュ織
+# -----------------------------------------------------------
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 1e4
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+

@@ -1,4 +1,4 @@
-'''
+﻿'''
 An official Pytorch impl of `Progressive Focused Transformer for Single Image Super-Resolution`.
 
 Arxiv: 'https://arxiv.org/abs/2503.20337'
@@ -285,7 +285,7 @@ class WindowAttention(nn.Module):
 
         # Use in-place operations where possible (only in inference mode)
         if not self.training:  # Check if in inference mode
-            attn = torch.softmax(attn, dim=-1, out=attn)  # 原地softmax
+            attn = torch.softmax(attn, dim=-1, out=attn)  # 鍘熷湴softmax
         else:
             attn = self.softmax(attn)  # Non-inplace if training
 
@@ -1134,7 +1134,7 @@ class PFT(nn.Module):
         else:
             # for image denoising and JPEG compression artifact reduction
             x_first = self.conv_first(x)
-            res = self.conv_after_body(self.forward_features(x_first)) + x_first
+            res = self.conv_after_body(self.forward_features(x_first, params)) + x_first
             x = x + self.conv_last(res)
 
         x = x / self.img_range + self.mean
