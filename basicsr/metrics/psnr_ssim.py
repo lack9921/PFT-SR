@@ -237,11 +237,19 @@ def calculate_lpips(img, img2, crop_border=0, test_y_channel=False, better='lowe
     import torch
     import torch.nn.functional as F
 
+    # Cache LPIPS model globally
+    if not hasattr(calculate_lpips, '_lpips_model'):
+        calculate_lpips._lpips_model = lpips.LPIPS(net='alex', verbose=False).to(img.device)
+
     assert img.shape == img2.shape, (f'Image shapes are different: {img.shape}, {img2.shape}.')
 
     if crop_border != 0:
         img = img[:, :, crop_border:-crop_border, crop_border:-crop_border]
         img2 = img2[:, :, crop_border:-crop_border, crop_border:-crop_border]
+
+    if test_y_channel:
+        img = _convert_input_type(img, test_y_channel=True)
+        img2 = _convert_input_type(img2, test_y_channel=True)
 
     # Ensure 3-channel input for LPIPS
     if img.shape[1] == 1:
@@ -252,12 +260,11 @@ def calculate_lpips(img, img2, crop_border=0, test_y_channel=False, better='lowe
     img_norm = img * 2.0 - 1.0
     img2_norm = img2 * 2.0 - 1.0
 
-    # Resize to 224x224 for LPIPS if needed
+    # Resize to 224x224 for LPIPS
     if img.shape[-1] != 224 or img.shape[-2] != 224:
         img_norm = F.interpolate(img_norm, size=(224, 224), mode='bilinear', align_corners=False)
         img2_norm = F.interpolate(img2_norm, size=(224, 224), mode='bilinear', align_corners=False)
 
-    loss_fn = lpips.LPIPS(net='alex', verbose=False).to(img.device)
-    lpips_val = loss_fn(img_norm, img2_norm)
+    lpips_val = calculate_lpips._lpips_model(img_norm, img2_norm)
     lpips_val = lpips_val.mean().item()
     return lpips_val
