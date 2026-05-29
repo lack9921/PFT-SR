@@ -89,7 +89,7 @@ network_g:
 path:
   pretrain_network_g: experiments/PFT_LoViF_AllTracks/training_states/60000.state
   strict_load_g: true
-  param_key_g: ~
+  param_key_g: params
   resume_state: ~
 
 # -----------------------------------------------------------
