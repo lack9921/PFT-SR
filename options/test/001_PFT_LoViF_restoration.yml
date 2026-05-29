@@ -16,8 +16,8 @@ datasets:
   test_1:
     name: Blur
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Blur/GT
-    dataroot_lq: /datasets_host/LoViF_val/Blur/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Blur/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Blur/LQ
     io_backend:
       type: disk
     scale: 1
@@ -25,8 +25,8 @@ datasets:
   test_2:
     name: Haze
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Haze/GT
-    dataroot_lq: /datasets_host/LoViF_val/Haze/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Haze/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Haze/LQ
     io_backend:
       type: disk
     scale: 1
@@ -34,8 +34,8 @@ datasets:
   test_3:
     name: Lowlight
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Lowlight/GT
-    dataroot_lq: /datasets_host/LoViF_val/Lowlight/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Lowlight/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Lowlight/LQ
     io_backend:
       type: disk
     scale: 1
@@ -43,8 +43,8 @@ datasets:
   test_4:
     name: Rain
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Rain/GT
-    dataroot_lq: /datasets_host/LoViF_val/Rain/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Rain/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Rain/LQ
     io_backend:
       type: disk
     scale: 1
@@ -52,8 +52,8 @@ datasets:
   test_5:
     name: Snow
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Snow/GT
-    dataroot_lq: /datasets_host/LoViF_val/Snow/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Snow/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Snow/LQ
     io_backend:
       type: disk
     scale: 1
@@ -87,7 +87,7 @@ network_g:
 # Path - point to your trained checkpoint
 # -----------------------------------------------------------
 path:
-  pretrain_network_g: experiments/PFT_LoViF_AllTracks/models/net_g_latest.pth
+  pretrain_network_g: experiments/PFT_LoViF_AllTracks/training_states/60000.state
   strict_load_g: true
   param_key_g: params
   resume_state: ~

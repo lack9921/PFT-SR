@@ -20,3 +20,4 @@ options/train/002_PFT_LoViF_restoration.yml
 
 experiments/
 tb_logger/
+results/

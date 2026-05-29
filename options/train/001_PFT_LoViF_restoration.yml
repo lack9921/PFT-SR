@@ -42,11 +42,11 @@ datasets:
     name: LoViF_AllTracks
     type: ConcatLoViFDataset
     tracks:
-      Blur:    {gt: /datasets_host/LoViF 2026/Blur/GT, lq: /datasets_host/LoViF 2026/Blur/LQ}
-      Haze:    {gt: /datasets_host/LoViF 2026/Haze/GT, lq: /datasets_host/LoViF 2026/Haze/LQ}
-      Lowlight: {gt: /datasets_host/LoViF 2026/Lowlight/GT, lq: /datasets_host/LoViF 2026/Lowlight/LQ}
-      Rain:    {gt: /datasets_host/LoViF 2026/Rain/GT, lq: /datasets_host/LoViF 2026/Rain/LQ}
-      Snow:    {gt: /datasets_host/LoViF 2026/Snow/GT, lq: /datasets_host/LoViF 2026/Snow/LQ}
+      Blur:    {gt: /datasets_host/dataset/LoViF 2026/Blur/GT, lq: /datasets_host/dataset/LoViF 2026/Blur/LQ}
+      Haze:    {gt: /datasets_host/dataset/LoViF 2026/Haze/GT, lq: /datasets_host/dataset/LoViF 2026/Haze/LQ}
+      Lowlight: {gt: /datasets_host/dataset/LoViF 2026/Lowlight/GT, lq: /datasets_host/dataset/LoViF 2026/Lowlight/LQ}
+      Rain:    {gt: /datasets_host/dataset/LoViF 2026/Rain/GT, lq: /datasets_host/dataset/LoViF 2026/Rain/LQ}
+      Snow:    {gt: /datasets_host/dataset/LoViF 2026/Snow/GT, lq: /datasets_host/dataset/LoViF 2026/Snow/LQ}
     gt_size: 64
     use_hflip: true
     use_rot: true
@@ -61,36 +61,36 @@ datasets:
   val_blur:
     name: LoViF_Val_Blur
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Blur/GT
-    dataroot_lq: /datasets_host/LoViF_val/Blur/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Blur/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Blur/LQ
     io_backend: {type: disk}
     scale: 1
   val_haze:
     name: LoViF_Val_Haze
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Haze/GT
-    dataroot_lq: /datasets_host/LoViF_val/Haze/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Haze/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Haze/LQ
     io_backend: {type: disk}
     scale: 1
   val_lowlight:
     name: LoViF_Val_Lowlight
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Lowlight/GT
-    dataroot_lq: /datasets_host/LoViF_val/Lowlight/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Lowlight/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Lowlight/LQ
     io_backend: {type: disk}
     scale: 1
   val_rain:
     name: LoViF_Val_Rain
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Rain/GT
-    dataroot_lq: /datasets_host/LoViF_val/Rain/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Rain/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Rain/LQ
     io_backend: {type: disk}
     scale: 1
   val_snow:
     name: LoViF_Val_Snow
     type: PairedImageDataset
-    dataroot_gt: /datasets_host/LoViF_val/Snow/GT
-    dataroot_lq: /datasets_host/LoViF_val/Snow/LQ
+    dataroot_gt: /datasets_host/dataset/LoViF_val/Snow/GT
+    dataroot_lq: /datasets_host/dataset/LoViF_val/Snow/LQ
     io_backend: {type: disk}
     scale: 1
 
