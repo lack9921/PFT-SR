@@ -1,17 +1,8 @@
-# =============================================================
-# PFT-SR LoViF 2026 Restoration Testing (upscale=1)
-# CVPR 2025 - Progressive Focused Transformer
-# Run: python basicsr/test.py -opt options/test/001_PFT_LoViF_restoration.yml
-# =============================================================
 name: PFT_LoViF_AllTracks
 model_type: PFTModel
 scale: 1
 num_gpu: 1
 manual_seed: 42
-
-# -----------------------------------------------------------
-# Dataset - 5 tracks validation
-# -----------------------------------------------------------
 datasets:
   test_1:
     name: Blur
@@ -21,7 +12,6 @@ datasets:
     io_backend:
       type: disk
     scale: 1
-
   test_2:
     name: Haze
     type: PairedImageDataset
@@ -30,7 +20,6 @@ datasets:
     io_backend:
       type: disk
     scale: 1
-
   test_3:
     name: Lowlight
     type: PairedImageDataset
@@ -39,7 +28,6 @@ datasets:
     io_backend:
       type: disk
     scale: 1
-
   test_4:
     name: Rain
     type: PairedImageDataset
@@ -48,7 +36,6 @@ datasets:
     io_backend:
       type: disk
     scale: 1
-
   test_5:
     name: Snow
     type: PairedImageDataset
@@ -57,66 +44,81 @@ datasets:
     io_backend:
       type: disk
     scale: 1
-
-# -----------------------------------------------------------
-# Network - must match training config exactly
-# -----------------------------------------------------------
 network_g:
   type: PFT
   upscale: 1
   in_chans: 3
   img_size: 64
   embed_dim: 90
-  depths: [6, 6, 6, 6, 6, 6]
+  depths:
+  - 6
+  - 6
+  - 6
+  - 6
+  - 6
+  - 6
   num_heads: 6
-  num_topk: [1024, 1024, 1024, 1024, 1024, 1024,
-             256, 256, 256, 256, 256, 256,
-             128, 128, 128, 128, 128, 128,
-             64, 64, 64, 64, 64, 64,
-             32, 32, 32, 32, 32, 32,
-             16, 16, 16, 16, 16, 16]
+  num_topk:
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 256
+  - 256
+  - 256
+  - 256
+  - 256
+  - 256
+  - 128
+  - 128
+  - 128
+  - 128
+  - 128
+  - 128
+  - 64
+  - 64
+  - 64
+  - 64
+  - 64
+  - 64
+  - 32
+  - 32
+  - 32
+  - 32
+  - 32
+  - 32
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
   window_size: 16
   convffn_kernel_size: 5
-  img_range: 1.
-  mlp_ratio: 2.
+  img_range: 1.0
+  mlp_ratio: 2.0
   upsampler: ''
-  resi_connection: '1conv'
+  resi_connection: 1conv
   use_checkpoint: true
-
-# -----------------------------------------------------------
-# Path - point to your trained checkpoint
-# -----------------------------------------------------------
 path:
   pretrain_network_g: experiments/PFT_LoViF_AllTracks/models/net_g_60000.pth
   strict_load_g: true
   param_key_g: params
-  resume_state: ~
-
-# -----------------------------------------------------------
-# Validation / Testing
-# -----------------------------------------------------------
+  resume_state: null
 val:
   save_img: true
-  suffix: ~
-
+  suffix: null
   metrics:
     psnr:
       type: calculate_psnr
       crop_border: 0
       test_y_channel: false
-
     ssim:
       type: calculate_ssim
       crop_border: 0
       test_y_channel: false
-
-    lpips:
-      type: calculate_lpips
-      better: lower
-
-# -----------------------------------------------------------
-# Logging
-# -----------------------------------------------------------
 logger:
   print_freq: 1
   use_tb_logger: true
