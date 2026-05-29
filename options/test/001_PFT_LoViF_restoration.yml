@@ -87,7 +87,7 @@ network_g:
 # Path - point to your trained checkpoint
 # -----------------------------------------------------------
 path:
-  pretrain_network_g: experiments/PFT_LoViF_AllTracks/training_states/60000.state
+  pretrain_network_g: experiments/PFT_LoViF_AllTracks/models/net_g_60000.pth
   strict_load_g: true
   param_key_g: params
   resume_state: ~
