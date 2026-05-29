@@ -236,10 +236,20 @@ def calculate_lpips(img, img2, crop_border=0, test_y_channel=False, better='lowe
     import lpips
     import torch
     import torch.nn.functional as F
+    import numpy as np
+
+    # Convert numpy arrays to torch tensors (nondist_validation passes numpy)
+    if isinstance(img, np.ndarray):
+        img = torch.from_numpy(img).float()
+        img2 = torch.from_numpy(img2).float()
 
     # Cache LPIPS model globally
     if not hasattr(calculate_lpips, '_lpips_model'):
-        calculate_lpips._lpips_model = lpips.LPIPS(net='alex', verbose=False).to(img.device)
+        device = img.device if hasattr(img, 'device') else torch.device('cuda')
+        calculate_lpips._lpips_model = lpips.LPIPS(net='alex', verbose=False).to(device)
+    else:
+        # Ensure model is on the right device
+        calculate_lpips._lpips_model = calculate_lpips._lpips_model.to(img.device if hasattr(img, 'device') else torch.device('cuda'))
 
     assert img.shape == img2.shape, (f'Image shapes are different: {img.shape}, {img2.shape}.')
 
