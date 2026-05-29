@@ -1,0 +1,157 @@
+# ============================================================
+# PFT-SR 5-Degradation Restoration Training Config
+# For Blur / Haze / Lowlight / Rain / Snow
+# ============================================================
+# general settings
+name: PFT_Restoration_5type
+model_type: PFTModel
+scale: 1                         # 同分辨率修复（非超分）
+num_gpu: 1
+manual_seed: 0
+
+find_unused_parameters: true
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: 5type_Train
+    type: PairedImageDataset
+    dataroot_gt: /media/wwl/F274D29874D25EC3/lyx/train_5type/GT
+    dataroot_lq: /media/wwl/F274D29874D25EC3/lyx/train_5type/LQ
+    io_backend:
+      type: disk
+
+    gt_size: 128
+    use_hflip: true
+    use_rot: true
+
+    # data loader
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 8
+    dataset_enlarge_ratio: 1
+    prefetch_mode: cuda
+    pin_memory: True
+    persistent_workers: True
+
+  # ===== 5 种退化类型各自独立的验证集 =====
+  val_blur:
+    name: Blur_Val
+    type: PairedImageDataset
+    dataroot_gt: /media/wwl/F274D29874D25EC3/lyx/val_5type/Blur/GT
+    dataroot_lq: /media/wwl/F274D29874D25EC3/lyx/val_5type/Blur/LQ
+    io_backend:
+      type: disk
+
+  val_haze:
+    name: Haze_Val
+    type: PairedImageDataset
+    dataroot_gt: /media/wwl/F274D29874D25EC3/lyx/val_5type/Haze/GT
+    dataroot_lq: /media/wwl/F274D29874D25EC3/lyx/val_5type/Haze/LQ
+    io_backend:
+      type: disk
+
+  val_lowlight:
+    name: Lowlight_Val
+    type: PairedImageDataset
+    dataroot_gt: /media/wwl/F274D29874D25EC3/lyx/val_5type/Lowlight/GT
+    dataroot_lq: /media/wwl/F274D29874D25EC3/lyx/val_5type/Lowlight/LQ
+    io_backend:
+      type: disk
+
+  val_rain:
+    name: Rain_Val
+    type: PairedImageDataset
+    dataroot_gt: /media/wwl/F274D29874D25EC3/lyx/val_5type/Rain/GT
+    dataroot_lq: /media/wwl/F274D29874D25EC3/lyx/val_5type/Rain/LQ
+    io_backend:
+      type: disk
+
+  val_snow:
+    name: Snow_Val
+    type: PairedImageDataset
+    dataroot_gt: /media/wwl/F274D29874D25EC3/lyx/val_5type/Snow/GT
+    dataroot_lq: /media/wwl/F274D29874D25EC3/lyx/val_5type/Snow/LQ
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: PFT
+  upscale: 1                       # 1 = 同分辨率修复
+  in_chans: 3
+  img_size: 64
+  embed_dim: 240
+  depths: [4, 4, 4, 6, 6, 6]
+  num_heads: 6
+  num_topk: [ 1024, 1024, 1024, 1024,
+              256, 256, 256, 256,
+              128, 128, 128, 128,
+              64, 64, 64, 64, 64, 64,
+              32, 32, 32, 32, 32, 32,
+              16, 16, 16, 16, 16, 16,]
+  window_size: 32
+  convffn_kernel_size: 7
+  img_range: 1.
+  mlp_ratio: 2.
+  upsampler: ''                    # 空 = 无上采样，直接 conv_last 输出
+  resi_connection: '1conv'
+  use_checkpoint: false
+
+# path
+path:
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+
+# training settings
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [250000, 400000, 450000, 475000, 490000]
+    gamma: 0.5
+
+  total_iter: 500000
+  warmup_iter: 20000
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+# validation settings
+val:
+  val_freq: !!float 1e4
+  save_img: false
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0               # 同分辨率，无需裁边
+      test_y_channel: no           # RGB 修复，不需要 Y 通道
+
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: no
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 1e4
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
